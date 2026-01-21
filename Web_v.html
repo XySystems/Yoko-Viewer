@@ -76,13 +76,11 @@
 </table>
 
 <script>
-  // Парсер CSV
   function parseCSV(text) {
     const lines = text.trim().split("\n");
     return lines.map(line => line.split(","));
   }
 
-  // Рендер таблицы
   function renderTable(data) {
     const table = document.getElementById("csvTable");
     const [header, ...rows] = data;
@@ -90,16 +88,14 @@
     table.querySelector("tbody").innerHTML = rows.map(row => "<tr>" + row.map(cell => `<td>${cell}</td>`).join("") + "</tr>").join("");
   }
 
-  // Загрузка CSV по умолчанию
   fetch("lts_bd.csv")
     .then(response => response.text())
     .then(text => {
       const data = parseCSV(text);
       renderTable(data);
     })
-    .catch(err => console.warn("Не удалось загрузить lts_bd.csv:", err));
+    .catch(err => console.warn("lts_bd.csv:", err));
 
-  // Загрузка через input
   document.getElementById("fileInput").addEventListener("change", function(e){
     const file = e.target.files[0];
     if(!file) return;
