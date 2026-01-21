@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>CSV Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #1a1c23;
+    --accent: #FFD166;
+    --text: #E5E7EB;
+    --muted: #9ca3af;
+    --radius: 12px;
+  }
+  body {
+    margin:0;
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 1200px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  }
+  th {
+    background-color: #1f2129;
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 14px;
+    padding: 12px;
+    text-align: center;
+    border-bottom: 2px solid var(--accent);
+    position: sticky;
+    top:0;
+    z-index:1;
+  }
+  td {
+    background-color: var(--card);
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+    border-bottom: 1px solid #17181f;
+  }
+  tr:nth-child(odd) td {
+    background-color: #17181f;
+  }
+  tr:hover td {
+    background-color: #2c2f3a;
+  }
+  #fileInput {
+    margin-bottom: 20px;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    border: 1px solid #262b38;
+    background: var(--card);
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+
+<input type="file" id="fileInput" accept=".csv" />
+<table id="csvTable">
+  <thead></thead>
+  <tbody></tbody>
+</table>
+
+<script>
+  // Парсер CSV
+  function parseCSV(text) {
+    const lines = text.trim().split("\n");
+    return lines.map(line => line.split(","));
+  }
+
+  // Рендер таблицы
+  function renderTable(data) {
+    const table = document.getElementById("csvTable");
+    const [header, ...rows] = data;
+    table.querySelector("thead").innerHTML = "<tr>" + header.map(h => `<th>${h}</th>`).join("") + "</tr>";
+    table.querySelector("tbody").innerHTML = rows.map(row => "<tr>" + row.map(cell => `<td>${cell}</td>`).join("") + "</tr>").join("");
+  }
+
+  // Загрузка CSV по умолчанию
+  fetch("lts_bd.csv")
+    .then(response => response.text())
+    .then(text => {
+      const data = parseCSV(text);
+      renderTable(data);
+    })
+    .catch(err => console.warn("Не удалось загрузить lts_bd.csv:", err));
+
+  // Загрузка через input
+  document.getElementById("fileInput").addEventListener("change", function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const csvData = parseCSV(e.target.result);
+      renderTable(csvData);
+    };
+    reader.readAsText(file);
+  });
+</script>
+
+</body>
+</html>
